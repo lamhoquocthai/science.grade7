@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THẦY THÁI ĐÀ LẠT - LỚP KHOA HỌC TỰ NHIÊN 6</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #0b132b;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Header Branding */
+        .header-bar {
+            width: 100%;
+            max-width: 900px;
+            background: linear-gradient(135deg, #ff6b00 0%, #0055ff 100%);
+            color: white;
+            text-align: center;
+            padding: 12px 15px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .header-title {
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.6);
+        }
+
+        .header-contact {
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.95rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* Game Container */
+        #game-container {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            height: 550px;
+            background-color: #1c2541;
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+            border: 2px solid #0055ff;
+            border-top: none;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Screens overlays */
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(11, 19, 43, 0.95);
+            padding: 20px;
+            text-align: center;
+            z-index: 10;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        h1 {
+            color: #ff6b00;
+            font-size: 2.2rem;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px rgba(255, 107, 0, 0.5);
+        }
+
+        p.subtitle {
+            color: #00d4ff;
+            font-size: 1.1rem;
+            margin-bottom: 25px;
+        }
+
+        /* Form elements */
+        .select-group {
+            margin: 10px 0;
+            width: 100%;
+            max-width: 450px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #ffaa00;
+            font-weight: 600;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 6px;
+            border: 2px solid #0055ff;
+            background-color: #0b132b;
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            cursor: pointer;
+        }
+
+        select:focus {
+            border-color: #ff6b00;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #ff6b00, #ff8c00);
+            color: white;
+            border: none;
+            padding: 14px 35px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            margin-top: 20px;
+            box-shadow: 0 4px 15px rgba(255, 107, 0, 0.4);
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 0, 0.6);
+            background: linear-gradient(45deg, #ff8c00, #ff6b00);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        /* Question Overlay */
+        #question-modal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(11, 19, 43, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 25px;
+            z-index: 20;
+            box-sizing: border-box;
+        }
+
+        .q-header {
+            color: #00d4ff;
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .q-text {
+            font-size: 1.2rem;
+            color: #ffffff;
+            margin-bottom: 20px;
+            max-width: 750px;
+            line-height: 1.4;
+            background: rgba(0, 85, 255, 0.2);
+            padding: 15px 20px;
+            border-radius: 8px;
+            border-left: 4px solid #ff6b00;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            width: 100%;
+            max-width: 750px;
+        }
+
+        @media (max-width: 600px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .opt-btn {
+            background-color: #1c2541;
+            color: white;
+            border: 2px solid #0055ff;
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+        }
+
+        .opt-btn:hover {
+            background-color: #0055ff;
+            border-color: #ff6b00;
+        }
+
+        .opt-btn .opt-prefix {
+            background-color: #ff6b00;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 10px;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        /* HUD Overlay */
+        #hud {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .hud-card {
+            background: rgba(11, 19, 43, 0.8);
+            border: 1px solid #0055ff;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .hud-card span {
+            color: #ff6b00;
+        }
+
+        /* Result Screen */
+        .score-big {
+            font-size: 3rem;
+            color: #ff6b00;
+            font-weight: bold;
+            margin: 15px 0;
+            text-shadow: 0 0 15px rgba(255, 107, 0, 0.5);
+        }
+
+        .stats {
+            font-size: 1.1rem;
+            color: #00d4ff;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-bar">
+        <div class="header-title">THẦY THÁI ĐÀ LẠT - LỚP KHOA HỌC TỰ NHIÊN 6</div>
+        <div class="header-contact">LIÊN HỆ: 086 2008 917</div>
+    </div>
+
+    <div id="game-container">
+        <canvas id="gameCanvas"></canvas>
+
+        <!-- HUD In-game -->
+        <div id="hud" class="hidden">
+            <div class="hud-card">ĐIỂM: <span id="score-val">0</span></div>
+            <div class="hud-card">MẠNG: <span id="lives-val">❤️❤️❤️</span></div>
+            <div class="hud-card">CHỦ ĐỀ: <span id="subject-val">Chương 1</span></div>
+        </div>
+
+        <!-- Start Screen -->
+        <div id="start-screen" class="screen">
+            <h1>ZOMBIE ĂN THỊT</h1>
+            <p class="subtitle">ÔN TẬP KHOA HỌC TỰ NHIÊN 6 - HỌC KỲ 1</p>
+
+            <div class="select-group">
+                <label for="subject-select">CHỌN CHƯƠNG HỌC / CHỦ ĐỀ:</label>
+                <select id="subject-select">
+                    <option value="ch1">Chương 1: Mở đầu về Khoa học tự nhiên</option>
+                    <option value="ch2">Chương 2: Chất quanh ta</option>
+                    <option value="ch3">Chương 3: Vật liệu, nhiên liệu, lương thực...</option>
+                    <option value="ch4">Chương 4: Hỗn hợp, tách chất ra khỏi hỗn hợp</option>
+                    <option value="ch5">Chương 5: Tế bào - Đơn vị cơ sở của sự sống</option>
+                    <option value="ch6">Chương 6: Từ tế bào đến cơ thể</option>
+                    <option value="all">Tổng Hợp (Tất cả 6 Chương KHTN 6)</option>
+                </select>
+            </div>
+
+            <div class="select-group">
+                <label for="difficulty-select">CHỌN MỨC ĐỘ / TỐC ĐỘ:</label>
+                <select id="difficulty-select">
+                    <option value="easy">Chậm - Câu hỏi Cơ Bản</option>
+                    <option value="medium" selected>Vừa - Câu hỏi Trung Bình</option>
+                    <option value="hard">Nhanh - Câu hỏi Thử Thách</option>
+                </select>
+            </div>
+
+            <button class="btn" id="start-btn">BẮT ĐẦU CHƠI</button>
+        </div>
+
+        <!-- Question Modal -->
+        <div id="question-modal" class="hidden">
+            <div class="q-header" id="q-subject-tag">CHƯƠNG 1</div>
+            <div class="q-text" id="q-text">Nội dung câu hỏi sẽ hiển thị ở đây?</div>
+            <div class="options-grid" id="options-container">
+                <!-- Direct buttons inserted dynamically -->
+            </div>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div id="game-over-screen" class="screen hidden">
+            <h1 style="color: #ff3333;">GAME OVER</h1>
+            <p class="subtitle">Zombie đã xâm nhập thành công!</p>
+            <div class="score-big" id="final-score">0</div>
+            <div class="stats" id="final-stats">
+                Số câu trả lời đúng: 0<br>
+                Mức độ: Vừa
+            </div>
+            <button class="btn" id="restart-btn">CHƠI LẠI</button>
+        </div>
+    </div>
+
+    <script>
+        // --- NGÂN HÀNG CÂU HỎI KHTN 6 (KẾT NỐI TRI THỨC) ---
+        const questionBank = {
+            ch1: {
+                easy: [
+                    { q: "Khoa học tự nhiên nghiên cứu về lĩnh vực nào sau đây?", opts: ["Các hiện tượng tự nhiên", "Lịch sử loài người", "Ngôn ngữ và văn học", "Luật pháp xã hội"], a: 0 },
+                    { q: "Dụng cụ nào dùng để đo nhiệt độ?", opts: ["Thước dây", "Cân đồng hồ", "Nhiệt kế", "Ống đong"], a: 2 },
+                    { q: "Đơn vị đo độ dài hợp pháp ở Việt Nam là gì?", opts: ["Milimét (mm)", "Mét (m)", "Ki-lô-mét (km)", "Xăng-ti-mét (cm)"], a: 1 }
+                ],
+                medium: [
+                    { q: "Để đo thể tích của một lượng chất lỏng, người ta thường dùng dụng cụ nào?", opts: ["Cân tiểu ly", "Ống đong (Cốc chia độ)", "Kính hiển vi", "Nhiệt kế thủy ngân"], a: 1 },
+                    { q: "Kính hiển vi quang học có tác dụng gì?", opts: ["Đo chiều dài vật nhỏ", "Quan sát các vật có kích thước rất nhỏ", "Đo nhiệt độ môi trường", "Quan sát các ngôi sao xa"], a: 1 },
+                    { q: "Hành động nào sau đây ĐÚNG khi làm việc trong phòng thực hành?", opts: ["Tự ý ngửi hóa chất", "Đeo kính bảo hộ và găng tay khi làm thí nghiệm", "Ăn uống trong phòng thí nghiệm", "Đổ hóa chất thừa vào bồn rửa"], a: 1 }
+                ],
+                hard: [
+                    { q: "Giới hạn đo (GHĐ) của một thước đo là gì?", opts: ["Độ dài giữa 2 vạch chia liên tiếp", "Độ dài lớn nhất ghi trên thước", "Độ dài nhỏ nhất ghi trên thước", "Độ dài trung bình của thước"], a: 1 },
+                    { q: "Một viên bi sắt có thể tích 15 cm3 được thả vào bình chia độ chứa 50 cm3 nước. Mực nước dâng lên là bao nhiêu?", opts: ["35 cm3", "50 cm3", "65 cm3", "75 cm3"], a: 2 }
+                ]
+            },
+            ch2: {
+                easy: [
+                    { q: "Chất tồn tại ở mấy thể cơ bản?", opts: ["2 thể", "3 thể", "4 thể", "5 thể"], a: 1 },
+                    { q: "Quá trình chất chuyển từ thể lỏng sang thể khí gọi là gì?", opts: ["Sự nóng chảy", "Sự đông đặc", "Sự bay hơi", "Sự ngưng tụ"], a: 2 },
+                    { q: "Đặc điểm nào sau đây là của chất ở thể khí?", opts: ["Có hình dạng cố định", "Có thể tích xác định", "Dễ dàng nén và lan tỏa", "Rất khó nén"], a: 2 }
+                ],
+                medium: [
+                    { q: "Hiện tượng nào sau đây thể hiện sự ngưng tụ?", opts: ["Nước đun sôi tạo thành hơi nước", "Hơi nước ngưng lại thành hạt nước trên lá cây", "Đăng đá chảy thành nước", "Nước đóng băng trong tủ lạnh"], a: 1 },
+                    { q: "Khí nào chiếm thể tích lớn nhất trong không khí (khoảng 78%)?", opts: ["Khí Oxygen", "Khí Nitrogen", "Khí Carbon dioxide", "Khí Hydrogen"], a: 1 },
+                    { q: "Sự nóng chảy là quá trình chuyển từ thể nào sang thể nào?", opts: ["Rắn sang lỏng", "Lỏng sang rắn", "Lỏng sang khí", "Khí sang lỏng"], a: 0 }
+                ],
+                hard: [
+                    { q: "Khí Oxygen có tính chất nào sau đây?", opts: ["Màu xanh, mùi hắc, chữa cháy", "Không màu, không mùi, duy trì sự cháy và sự sống", "Màu vàng, mùi thơm, làm tắt lửa", "Không màu, nặng hơn nước, cháy bùng nổ"], a: 1 },
+                    { q: "Khí nào gây nên hiệu ứng nhà kính làm Trái Đất nóng lên?", opts: ["Oxygen", "Nitrogen", "Carbon dioxide", "Helium"], a: 2 }
+                ]
+            },
+            ch3: {
+                easy: [
+                    { q: "Vật liệu nào sau đây dẫn điện và dẫn nhiệt tốt?", opts: ["Gỗ", "Nhựa", "Kim loại", "Thủy tinh"], a: 2 },
+                    { q: "Thực phẩm nào cung cấp nhiều đạm (protein) nhất?", opts: ["Gạo", "Thịt, cá, trứng", "Rau xanh", "Trái cây"], a: 1 },
+                    { q: "Nhiên liệu nào sau đây là nhiên liệu hóa thạch?", opts: ["Củi khô", "Than đá", "Khí sinh học (Biogas)", "Rơm rạ"], a: 1 }
+                ],
+                medium: [
+                    { q: "Chất nào sau đây được xếp vào nhóm lương thực?", opts: ["Thịt bò", "Rau cải", "Gạo, ngô, khoai, sắn", "Dầu ăn"], a: 2 },
+                    { q: "Đặc tính quan trọng nhất của thủy tinh khiến nó được dùng làm cửa kính là gì?", opts: ["Dẻo và dễ uốn", "Trong suốt và không gỉ", "Dẫn điện tốt", "Nhẹ và độ bền cao"], a: 1 },
+                    { q: "Để bảo quản thực phẩm tươi sống lâu hỏng, người ta thường dùng phương pháp nào?", opts: ["Để nơi nắng nóng", "Bảo quản lạnh (tủ lạnh)", "Để ở không khí ẩm", "Mở nắp hộp kín"], a: 1 }
+                ],
+                hard: [
+                    { q: "Nhiên liệu tái tạo là loại nhiên liệu nào sau đây?", opts: ["Xăng, dầu diesel", "Than đá", "Năng lượng mặt trời, gió, sinh học", "Khí tự nhiên"], a: 2 },
+                    { q: "Sử dụng vật liệu nhựa không đúng cách có thể gây tác hại lớn nhất là gì?", opts: ["Cạn kiệt tài nguyên rừng", "Cháy nổ gia đình", "Ô nhiễm môi trường (ô nhiễm rác thải nhựa)", "Cạn kiệt nguồn nước"], a: 2 }
+                ]
+            },
+            ch4: {
+                easy: [
+                    { q: "Nước muối đường thuộc loại hệ nào?", opts: ["Hỗn hợp đồng nhất", "Hỗn hợp không đồng nhất", "Chất tinh khiết", "Huyền phù"], a: 0 },
+                    { q: "Phương pháp nào dùng để tách cát ra khỏi hỗn hợp nước và cát?", opts: ["Cô cạn", "Lọc", "Chiết", "Chưng cất"], a: 1 },
+                    { q: "Hỗn hợp gồm chất rắn lơ lửng trong chất lỏng gọi là gì?", opts: ["Dung dịch", "Hũu tương", "Huyền phù", "Hỗn hợp đồng nhất"], a: 2 }
+                ],
+                medium: [
+                    { q: "Để tách muối ăn ra khỏi dung dịch nước muối, người ta dùng phương pháp nào?", opts: ["Lọc", "Chiết", "Cô cạn (đun nóng)", "Dùng nam châm"], a: 2 },
+                    { q: "Sữa chua hoặc nước cam có tép cam lơ lửng được gọi là gì?", opts: ["Dung dịch", "Chất tinh khiết", "Huyền phù", "Nhũ tương"], a: 2 },
+                    { q: "Dầu ăn nổi trên mặt nước tạo thành hỗn hợp không tan. Hệ này gọi là gì?", opts: ["Dung dịch", "Nhũ tương", "Chất tinh khiết", "Khí hòa tan"], a: 1 }
+                ],
+                hard: [
+                    { q: "Để tách hỗn hợp gồm dầu ăn và nước ra khỏi nhau, người ta dùng dụng cụ và phương pháp nào?", opts: ["Dùng phễu chiết (phương pháp chiết)", "Dùng giấy lọc (phương pháp lọc)", "Đun sôi (phương pháp cô cạn)", "Dùng nam châm hút"], a: 0 },
+                    { q: "Hỗn hợp nào sau đây là hỗn hợp KHÔNG đồng nhất?", opts: ["Nước đường tan hoàn toàn", "Không khí sạch", "Nước phù sa (nước lẫn bùn đục)", "Nước muối"], a: 2 }
+                ]
+            },
+            ch5: {
+                easy: [
+                    { q: "Đơn vị cơ sở cấu tạo nên mọi cơ thể sống là gì?", opts: ["Mô", "Tế bào", "Cơ quan", "Hệ cơ quan"], a: 1 },
+                    { q: "Bào quan nào chứa thành phần di truyền và điều khiển mọi hoạt động của tế bào?", opts: ["Màng tế bào", "Tế bào chất", "Nhân (hoặc vùng nhân)", "Lục lạp"], a: 2 },
+                    { q: "Thành phần nào giúp tế bào thực vật có khả năng quang hợp?", opts: ["Ty thể", "Lục lạp", "Không bào", "Màng tế bào"], a: 1 }
+                ],
+                medium: [
+                    { q: "Thành phần nào có ở tế bào thực vật nhưng KHÔNG có ở tế bào động vật?", opts: ["Màng tế bào", "Tế bào chất", "Thành tế bào (và lục lạp)", "Nhân tế bào"], a: 2 },
+                    { q: "Chức năng chính của màng tế bào là gì?", opts: ["Chứa di truyền", "Bảo vệ và kiểm soát các chất đi vào/ra tế bào", "Nơi diễn ra các hoạt động sống", "Tổng hợp chất dinh dưỡng"], a: 1 },
+                    { q: "Sự lớn lên và phân chia của tế bào có ý nghĩa gì đối với cơ thể?", opts: ["Làm cơ thể tăng kích thước và khối lượng (sinh trưởng)", "Làm thay đổi môi trường sống", "Giúp cơ thể ngừng phát triển", "Tạo ra các chất vô cơ"], a: 0 }
+                ],
+                hard: [
+                    { q: "Từ 1 tế bào ban đầu, sau 3 lần phân chia liên tiếp sẽ tạo ra bao nhiêu tế bào con?", opts: ["4 tế bào", "6 tế bào", "8 tế bào", "16 tế bào"], a: 2 },
+                    { q: "Tế bào nhân thực khác tế bào nhân sơ ở điểm cơ bản nào?", opts: ["Có màng tế bào", "Có nhân hoàn chỉnh với màng nhân bao bọc", "Có tế bào chất", "Có khả năng phân chia"], a: 1 }
+                ]
+            },
+            ch6: {
+                easy: [
+                    { q: "Cơ thể đơn bào là cơ thể được cấu tạo từ bao nhiêu tế bào?", opts: ["Một tế bào", "Hai tế bào", "Rất nhiều tế bào", "Hàng triệu tế bào"], a: 0 },
+                    { q: "Sinh vật nào sau đây là sinh vật đơn bào?", opts: ["Cây trùng giày / Trùng biến hình", "Cây bàng", "Con mèo", "Con người"], a: 0 },
+                    { q: "Tập hợp các tế bào giống nhau cùng thực hiện một chức năng gọi là gì?", opts: ["Cơ quan", "Mô", "Hệ cơ quan", "Cơ thể"], a: 1 }
+                ],
+                medium: [
+                    { q: "Sắp xếp các cấp tổ chức của cơ thể đa bào từ nhỏ đến lớn:", opts: ["Tế bào -> Cơ quan -> Mô -> Hệ cơ quan -> Cơ thể", "Tế bào -> Mô -> Cơ quan -> Hệ cơ quan -> Cơ thể", "Mô -> Tế bào -> Cơ quan -> Hệ cơ quan -> Cơ thể", "Tế bào -> Mô -> Hệ cơ quan -> Cơ quan -> Cơ thể"], a: 1 },
+                    { q: "Hệ cơ quan nào ở người có chức năng vận chuyển máu và các chất dinh dưỡng đi khắp cơ thể?", opts: ["Hệ hô hấp", "Hệ tuần hoàn", "Hệ tiêu hóa", "Hệ thần kinh"], a: 1 },
+                    { q: "Dạ dày, gan, ruột thuộc hệ cơ quan nào trong cơ thể người?", opts: ["Hệ tiêu hóa", "Hệ hô hấp", "Hệ bài tiết", "Hệ vận động"], a: 0 }
+                ],
+                hard: [
+                    { q: "Cơ quan nào sau đây thuộc hệ hô hấp ở người?", opts: ["Tim", "Dạ dày", "Phổi", "Thận"], a: 2 },
+                    { q: "Ví dụ nào sau đây đại diện cho cấp độ CƠ QUAN ở thực vật?", opts: ["Tế bào biểu bì", "Mô gỗ", "Lá cây (hoặc Rễ, Thân, Hoa)", "Cây bạch đàn"], a: 2 }
+                ]
+            }
+        };
+
+        // Engine Game Variables
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        let gameRunning = false;
+        let score = 0;
+        let lives = 3;
+        let activeZombies = [];
+        let bullets = [];
+        let explosions = [];
+        let currentSubject = "ch1";
+        let currentDifficulty = "medium";
+        let spawnTimer = null;
+        let activeQuestionZombie = null;
+        let correctAnswersCount = 0;
+
+        // Player Cannon Settings
+        const player = {
+            x: 50,
+            y: 275,
+            radius: 25,
+            color: "#0055ff"
+        };
+
+        // Speed configurations based on difficulty
+        const diffConfig = {
+            easy: { speedMin: 0.4, speedMax: 0.8, interval: 4000 },
+            medium: { speedMin: 0.8, speedMax: 1.4, interval: 3000 },
+            hard: { speedMin: 1.5, speedMax: 2.2, interval: 2000 }
+        };
+
+        // Resize Canvas dynamically
+        function resizeCanvas() {
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+            player.y = canvas.height / 2;
+        }
+        window.addEventListener("resize", resizeCanvas);
+        resizeCanvas();
+
+        // Game Loop
+        function animate() {
+            if (!gameRunning) return;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw Background Grid/Road
+            ctx.strokeStyle = "rgba(0, 85, 255, 0.1)";
+            ctx.lineWidth = 2;
+            for (let i = 0; i < canvas.width; i += 40) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, canvas.height);
+                ctx.stroke();
+            }
+
+            // Draw Base Line
+            ctx.strokeStyle = "#ff6b00";
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(100, 0);
+            ctx.lineTo(100, canvas.height);
+            ctx.stroke();
+
+            // Draw Player Cannon
+            ctx.fillStyle = player.color;
+            ctx.beginPath();
+            ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = "#00d4ff";
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            // Cannon Barrel
+            ctx.fillStyle = "#ff6b00";
+            ctx.fillRect(player.x, player.y - 8, 35, 16);
+
+            // Update & Draw Bullets
+            for (let i = bullets.length - 1; i >= 0; i--) {
+                let b = bullets[i];
+                
+                // Di chuyển đạn về phía mục tiêu
+                let dx = b.targetX - b.x;
+                let dy = b.targetY - b.y;
+                let dist = Math.hypot(dx, dy);
+
+                if (dist < 15) {
+                    // Đạn trúng zombie -> Xóa zombie và đạn
+                    createExplosion(b.targetX, b.targetY);
+                    activeZombies = activeZombies.filter(z => z.id !== b.zombieId);
+                    bullets.splice(i, 1);
+                    continue;
+                }
+
+                b.x += (dx / dist) * b.speed;
+                b.y += (dy / dist) * b.speed;
+
+                ctx.fillStyle = "#ffaa00";
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, 7, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Update & Draw Explosions
+            for (let i = explosions.length - 1; i >= 0; i--) {
+                let ex = explosions[i];
+                ex.radius += 2;
+                ex.alpha -= 0.05;
+
+                if (ex.alpha <= 0) {
+                    explosions.splice(i, 1);
+                    continue;
+                }
+
+                ctx.save();
+                ctx.globalAlpha = ex.alpha;
+                ctx.fillStyle = "#ff6b00";
+                ctx.beginPath();
+                ctx.arc(ex.x, ex.y, ex.radius, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+
+            // Update & Draw Zombies
+            for (let i = activeZombies.length - 1; i >= 0; i--) {
+                let z = activeZombies[i];
+                z.x -= z.speed;
+
+                // Draw Zombie Body
+                ctx.fillStyle = z.color;
+                ctx.beginPath();
+                ctx.arc(z.x, z.y, z.radius, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Zombie Eyes
+                ctx.fillStyle = "#ff0000";
+                ctx.beginPath();
+                ctx.arc(z.x - 8, z.y - 5, 4, 0, Math.PI * 2);
+                ctx.arc(z.x - 8, z.y + 5, 4, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Zombie Label
+                ctx.fillStyle = "#ffffff";
+                ctx.font = "bold 12px Arial";
+                ctx.textAlign = "center";
+                ctx.fillText("ZOMBIE", z.x, z.y - z.radius - 5);
+
+                // Zombie reaches defense line
+                if (z.x - z.radius <= 100) {
+                    activeZombies.splice(i, 1);
+                    lives--;
+                    updateHUD();
+                    if (lives <= 0) {
+                        endGame();
+                    }
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        function createExplosion(x, y) {
+            explosions.push({ x: x, y: y, radius: 10, alpha: 1.0 });
+        }
+
+        // Spawn Zombie Function
+        let zombieIdCounter = 0;
+        function spawnZombie() {
+            if (!gameRunning) return;
+
+            const cfg = diffConfig[currentDifficulty];
+            const speed = Math.random() * (cfg.speedMax - cfg.speedMin) + cfg.speedMin;
+            const yPos = Math.random() * (canvas.height - 100) + 50;
+
+            const newZombie = {
+                id: zombieIdCounter++,
+                x: canvas.width + 30,
+                y: yPos,
+                radius: 22,
+                speed: speed,
+                color: "#2a9d8f"
+            };
+
+            activeZombies.push(newZombie);
+        }
+
+        // Direct Canvas Click Handling for Zombies
+        canvas.addEventListener("click", function (e) {
+            if (!gameRunning) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const clickY = e.clientY - rect.top;
+
+            // Find clicked zombie
+            for (let z of activeZombies) {
+                let dist = Math.hypot(clickX - z.x, clickY - z.y);
+                if (dist <= z.radius + 15) {
+                    triggerQuestion(z);
+                    break;
+                }
+            }
+        });
+
+        // Trigger Quiz Modal
+        function triggerQuestion(zombie) {
+            activeQuestionZombie = zombie;
+            
+            // Get Question Pool
+            let pool = [];
+            if (currentSubject === "all") {
+                pool = [
+                    ...questionBank.ch1[currentDifficulty],
+                    ...questionBank.ch2[currentDifficulty],
+                    ...questionBank.ch3[currentDifficulty],
+                    ...questionBank.ch4[currentDifficulty],
+                    ...questionBank.ch5[currentDifficulty],
+                    ...questionBank.ch6[currentDifficulty]
+                ];
+            } else {
+                pool = questionBank[currentSubject][currentDifficulty];
+            }
+
+            const qData = pool[Math.floor(Math.random() * pool.length)];
+
+            // Fill Question UI
+            document.getElementById("q-subject-tag").innerText = `CHỦ ĐỀ: ${getSubjectName(currentSubject)}`;
+            document.getElementById("q-text").innerText = qData.q;
+
+            const optsContainer = document.getElementById("options-container");
+            optsContainer.innerHTML = "";
+
+            const prefixes = ["A", "B", "C", "D"];
+            qData.opts.forEach((optText, idx) => {
+                const btn = document.createElement("button");
+                btn.className = "opt-btn";
+                btn.innerHTML = `<span class="opt-prefix">${prefixes[idx]}</span> ${optText}`;
+                
+                btn.onclick = function() {
+                    handleAnswer(idx === qData.a);
+                };
+
+                optsContainer.appendChild(btn);
+            });
+
+            // Display Modal
+            document.getElementById("question-modal").classList.remove("hidden");
+        }
+
+        // Handle Selected Answer
+        function handleAnswer(isCorrect) {
+            document.getElementById("question-modal").classList.add("hidden");
+
+            if (isCorrect && activeQuestionZombie) {
+                // Bắn đạn di chuyển chuẩn xác tới zombie
+                bullets.push({
+                    x: player.x + 35,
+                    y: player.y,
+                    targetX: activeQuestionZombie.x,
+                    targetY: activeQuestionZombie.y,
+                    zombieId: activeQuestionZombie.id,
+                    speed: 20
+                });
+
+                score += (currentDifficulty === "easy" ? 10 : currentDifficulty === "medium" ? 20 : 30);
+                correctAnswersCount++;
+                updateHUD();
+            } else {
+                // Trả lời sai: Zombie tăng tốc
+                if (activeQuestionZombie) {
+                    activeQuestionZombie.speed += 1.0;
+                    activeQuestionZombie.color = "#e76f51";
+                }
+            }
+            activeQuestionZombie = null;
+        }
+
+        // Helpers
+        function getSubjectName(sub) {
+            switch(sub) {
+                case "ch1": return "CHƯƠNG 1 (MỞ ĐẦU KHTN)";
+                case "ch2": return "CHƯƠNG 2 (CHẤT QUANH TA)";
+                case "ch3": return "CHƯƠNG 3 (VẬT LIỆU, NHIÊN LIỆU)";
+                case "ch4": return "CHƯƠNG 4 (HỖN HỢP, TÁCH CHẤT)";
+                case "ch5": return "CHƯƠNG 5 (TẾ BÀO)";
+                case "ch6": return "CHƯƠNG 6 (TỪ TẾ BÀO ĐẾN CƠ THỂ)";
+                default: return "TỔNG HỢP KHTN 6";
+            }
+        }
+
+        function updateHUD() {
+            document.getElementById("score-val").innerText = score;
+            document.getElementById("subject-val").innerText = getSubjectName(currentSubject);
+            
+            let hearts = "";
+            for (let i = 0; i < lives; i++) hearts += "❤️";
+            document.getElementById("lives-val").innerText = hearts || "💀";
+        }
+
+        // Start Game
+        document.getElementById("start-btn").addEventListener("click", function() {
+            currentSubject = document.getElementById("subject-select").value;
+            currentDifficulty = document.getElementById("difficulty-select").value;
+
+            score = 0;
+            lives = 3;
+            correctAnswersCount = 0;
+            activeZombies = [];
+            bullets = [];
+            explosions = [];
+            gameRunning = true;
+
+            document.getElementById("start-screen").classList.add("hidden");
+            document.getElementById("game-over-screen").classList.add("hidden");
+            document.getElementById("hud").classList.remove("hidden");
+
+            updateHUD();
+            resizeCanvas();
+
+            // Clear previous timers
+            if (spawnTimer) clearInterval(spawnTimer);
+            spawnTimer = setInterval(spawnZombie, diffConfig[currentDifficulty].interval);
+
+            // Initial Spawn
+            spawnZombie();
+
+            // Run Loop
+            animate();
+        });
+
+        // Restart Game
+        document.getElementById("restart-btn").addEventListener("click", function() {
+            document.getElementById("game-over-screen").classList.add("hidden");
+            document.getElementById("start-screen").classList.remove("hidden");
+        });
+
+        // End Game
+        function endGame() {
+            gameRunning = false;
+            clearInterval(spawnTimer);
+
+            document.getElementById("hud").classList.add("hidden");
+            document.getElementById("game-over-screen").classList.remove("hidden");
+            document.getElementById("final-score").innerText = score + " ĐIỂM";
+            
+            const diffText = currentDifficulty === "easy" ? "Chậm" : currentDifficulty === "medium" ? "Vừa" : "Nhanh";
+            document.getElementById("final-stats").innerHTML = `
+                Số câu trả lời đúng: <b>${correctAnswersCount}</b> câu<br>
+                Mức độ: <b>${diffText}</b> | Chủ đề: <b>${getSubjectName(currentSubject)}</b>
+            `;
+        }
+    </script>
+</body>
+</html>
